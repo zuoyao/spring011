@@ -13,10 +13,10 @@ public class MyAdvice {
         System.out.println("这是方法执行之前需要执行的方法");
     }
     public void after(){
-        System.out.println("这是方法执行之后执行，出现异常不会执行");
+        System.out.println("这是方法执行之后执行，出现也会执行");
     }
     public void afterReturn(){
-        System.out.println("方法执行后，出现异常也会执行");
+        System.out.println("方法执行后，出现异常不会执行");
     }
     public Object around(ProceedingJoinPoint pjp){
         System.out.println("这里是环绕通知qian");
