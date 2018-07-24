@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--指定spring读取配置文件db.propertites-->
+    <context:property-placeholder location="classpath:tx/db.propertites"></context:property-placeholder>
+    <!--将连接池放到spring中-->
+    <bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
+        <property name="driverClass" value="${jdbc.driverClass}"></property>
+        <property name="user" value="${jdbc.user}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+    <!--事务核心管理器，封装了对事务的所有操作，依赖于连接池-->
+    <bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--事务模板对象-->
+    <!--<bean name="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"></property>
+    </bean>-->
+    <bean name="accountDao" class="tx.dao.impl.AccountDaoImpl">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <bean name="accountService" class="tx.service.impl.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"></property>
+        <!--<property name="tt" ref="transactionTemplate"></property>-->
+    </bean>
+
+
+    <!-- 配置事务通知 -->
+    <!--<tx:advice id="txAdvice" transaction-manager="transactionManager" >
+        <tx:attributes>
+            &lt;!&ndash; 以方法为单位,指定方法应用什么事务属性
+                isolation:隔离级别
+                propagation:传播行为 REQUIRED表示在service同级的方法调用中，调用方法有事务被调用方法就不用开器事务了
+                read-only:是否只读
+             &ndash;&gt;
+            <tx:method name="save*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false" />
+            <tx:method name="persist*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false" />
+            <tx:method name="update*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false" />
+            <tx:method name="modify*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false" />
+            <tx:method name="delete*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false" />
+            <tx:method name="remove*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false" />
+            <tx:method name="get*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="true" />
+            <tx:method name="find*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="true" />
+        </tx:attributes>
+    </tx:advice>-->
+    <!--xml配置aop-->
+    <!--<tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="update*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+        </tx:attributes>
+    </tx:advice>
+    &lt;!&ndash;配置织入&ndash;&gt;
+    <aop:config>
+        <aop:pointcut id="txpc" expression="execution(* tx.service.impl.*ServiceImpl.*(..))"></aop:pointcut>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txpc"></aop:advisor>
+    </aop:config>-->
+    <!--注解配置aop-->
+    <!--开启注解-->
+    <tx:annotation-driven></tx:annotation-driven>
+
+
+</beans>
